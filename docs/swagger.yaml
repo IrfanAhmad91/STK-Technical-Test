@@ -1,0 +1,343 @@
+basePath: /api/v1
+definitions:
+  domain.CreateMenuRequest:
+    description: Request payload for creating a new menu item
+    properties:
+      name:
+        example: New Menu Item
+        maxLength: 255
+        minLength: 1
+        type: string
+      parent_id:
+        type: integer
+      position:
+        example: 0
+        type: integer
+    required:
+    - name
+    type: object
+  domain.DeleteResponse:
+    description: Response payload for delete operations
+    properties:
+      deleted_count:
+        example: 5
+        type: integer
+      message:
+        example: Menu item and 4 descendants deleted successfully
+        type: string
+    type: object
+  domain.ErrorResponse:
+    description: Standard error response format
+    properties:
+      code:
+        example: VALIDATION_ERROR
+        type: string
+      details:
+        additionalProperties: true
+        type: object
+      message:
+        example: Invalid request parameters
+        type: string
+    type: object
+  domain.MenuItem:
+    description: Menu item with hierarchical relationships
+    properties:
+      created_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Dashboard
+        maxLength: 255
+        minLength: 1
+        type: string
+      parent_id:
+        type: integer
+      position:
+        example: 0
+        type: integer
+      updated_at:
+        example: "2024-01-15T10:30:00Z"
+        type: string
+    required:
+    - name
+    type: object
+  domain.MoveRequest:
+    description: Request payload for moving a menu item to a different parent
+    properties:
+      new_parent_id:
+        type: integer
+      position:
+        example: 0
+        type: integer
+    type: object
+  domain.ReorderRequest:
+    description: Request payload for reordering a menu item within its sibling group
+    properties:
+      new_position:
+        example: 2
+        minimum: 0
+        type: integer
+    required:
+    - new_position
+    type: object
+  domain.UpdateMenuRequest:
+    description: Request payload for updating an existing menu item
+    properties:
+      name:
+        example: Updated Menu Item
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://github.com/stk/menu-tree-api
+  description: RESTful API for managing hierarchical menu structures with unlimited
+    depth
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Hierarchical Menu Tree API
+  version: "1.0"
+paths:
+  /menus:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all menu items with their hierarchical relationships
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.MenuItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get all menu items
+      tags:
+      - menus
+    post:
+      consumes:
+      - application/json
+      description: Creates a new menu item with optional parent and position
+      parameters:
+      - description: Menu item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.MenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Create menu item
+      tags:
+      - menus
+  /menus/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a menu item and all its descendants
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.DeleteResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Delete menu item
+      tags:
+      - menus
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a specific menu item with its parent and children references
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.MenuItem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Get menu item by ID
+      tags:
+      - menus
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing menu item's name
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated menu item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.MenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Update menu item
+      tags:
+      - menus
+  /menus/{id}/move:
+    put:
+      consumes:
+      - application/json
+      description: Moves a menu item to a different parent with optional position
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New parent and position data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.MoveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.MenuItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "409":
+          description: Circular reference detected
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Move menu item
+      tags:
+      - menus
+  /menus/{id}/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Changes the position of a menu item within its sibling group
+      parameters:
+      - description: Menu Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New position data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ReorderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.MenuItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.ErrorResponse'
+      summary: Reorder menu item
+      tags:
+      - menus
+swagger: "2.0"
