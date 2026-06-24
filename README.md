@@ -176,4 +176,5 @@ psql -U postgres -d menu_tree_db -f migrations/001_create_menu_items_table_down.
 
 
 
-MIT
+Screnshoot 
+<img width="1911" height="822" alt="image" src="https://github.com/user-attachments/assets/d733e98f-382a-4556-a47b-66d3be42e853" />
