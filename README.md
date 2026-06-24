@@ -2,6 +2,9 @@
 
 A full-stack application for managing unlimited-depth nested menu structures with drag-and-drop reorganization capabilities.
 
+# download file frontend klik link -> https://drive.google.com/file/d/1SPr2t1cD_QSEsMi0aePJviG1lnnxN3Kh/view?usp=sharing
+# lalu extract ke dalam file STK Technical Test
+
 ## Technology Stack
 
 ### Backend
